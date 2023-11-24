@@ -1,6 +1,6 @@
 # Mindshift-Sage
-An interactive Chat Bot well versed in philosophy...ready to deliver wisdom at the click of a button
-Below is a short demo...I had finished this project right after eating Thanksgiving dinner :)
+An interactive Chat Bot well versed in philosophy...ready to deliver wisdom at the click of a button\
+Below is a short demo...I had finished this project right after eating Thanksgiving dinner :) \
 ![Can you tell I just had Thanksgiving dinner?](https://github.com/ConicalDrupe/Mindshift-Sage/blob/main/sage_demo.png)
 
 ## Tools
