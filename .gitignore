@@ -1,5 +1,6 @@
 /llm_env
 /__pycache__
 open_ai_key.py
+hf_api_key.py
 /data_store/quotes/philosopher-quotes.csv
 /data_store/db/
