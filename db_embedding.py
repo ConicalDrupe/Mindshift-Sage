@@ -15,7 +15,14 @@ def new_query_quotes(query,k=3):
     # return response
     db = load_vectorstore()
     hits = db.similarity_search(query=query,k=k)
-    return hits
+
+    results = []
+
+    for hit in hits:
+        results.append(hit.page_content)
+    results = '/n/n'.join(results)
+
+    return results
 
 # The below needs tweeking - see TO DO above
 # def query_quotes(query,k=3):
