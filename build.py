@@ -1,6 +1,12 @@
 import os
 import errno
 from huggingface_hub import hf_hub_download
+from langchain.vectorstores import Chroma
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.embeddings import OpenAIEmbeddings
+from open_ai_key import open_ai_key
+from langchain.document_loaders import CSVLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 # Setup file paths
 # Download Files
@@ -33,6 +39,41 @@ def download_quotes(download_path='quotes',repo_id='datastax/philosopher-quotes'
     else:
         print("Nothing Downloaded, file already exists")
 
+# load documents -> split documents -> create embedding into persistent directory
+def load_and_split_quotes():
+    """ Make sure to run build.py first, to download quotes """
+    quotes_path = os.path.join(os.getcwd(),'data_store','quotes')
+    loader = CSVLoader(os.path.join(quotes_path,'philosopher-quotes.csv')) # Is there a way to store author and tags into metadata for textsplitter?
+    document = loader.load()
+    split_documents = rec_split_documents(document)
+    return split_documents
+
+def rec_split_documents(documents):
+    """ Takes in loaded documents, outputs split documents """
+    splitter = RecursiveCharacterTextSplitter(
+            chunk_size = 625,
+            chunk_overlap = 0,
+            length_function = len,
+            is_separator_regex = False)
+    split_documents = splitter.split_documents(documents)
+    return split_documents
+
+def create_hf_vectorstore(split_documents):
+    hf_embedding=HuggingFaceEmbeddings(model='all-MiniLM-L12-v2')
+    db_dir = os.path.join(os.getcwd(),'data_store','db')
+    Chroma.from_documents(split_documents, hf_embedding, persist_directory=db_dir)
+    print("Chromo Vectorstore created!")
+    return
+
+def create_openai_vectorstore(split_documents):
+    """ TO DO - Update interactive open_ai_key """
+    db_dir = os.path.join(os.getcwd(),'data_store','db')
+    os.environ["OPENAI_API_KEY"] = open_ai_key
+    embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
+    db = Chroma.from_documents(split_documents, embedding_function=embeddings, persist_directory=db_dir)
+
 if __name__ == "__main__":
     create_data_paths()
     download_quotes()
+    split_documents = load_and_split_quotes()
+    create_hf_vectorstore(split_documents)
