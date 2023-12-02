@@ -25,18 +25,18 @@ def retrieve_hf_insight(user_input):
     """
     prompt_template = PromptTemplate(template=template,input_variables=["user_input","list_of_quotes"])
 
-    repo_id = "tiiuae/falcon-7b"
-    model_kwargs = {'temperature':0.1} 
-                    #,
-                    #'max_length':200}
+    repo_id = "tiiuae/falcon-7b-instruct"
+    model_kwargs = {'temperature':0.1}
 
     llm = HuggingFaceHub(repo_id=repo_id,model_kwargs=model_kwargs)
     
     
     llm_chain = LLMChain(prompt=prompt_template,llm=llm)
-    quotes_list = new_query_quotes(user_input, k=3)
+    quotes_list = new_query_quotes(user_input, k=1)
     print("Quotes : ", quotes_list)
     response = llm_chain.run({"user_input":user_input,"list_of_quotes":quotes_list})
+    print("LLM Chain ran")
+    print(response)
 
     return response
 
