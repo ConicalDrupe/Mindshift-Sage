@@ -13,7 +13,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 # create embeddings
 
 def create_data_paths():
-    dp = os.path.join(os.getcwd(),'data_dir')
+    dp = os.path.join(os.getcwd(),'data_store')
     
     if not os.path.exists(dp):
         try:
@@ -30,7 +30,7 @@ def download_quotes(download_path='quotes',repo_id='datastax/philosopher-quotes'
     """Input download path,HF repoid,filename,type""" 
     target_dir = os.path.join(os.getcwd(),'data_store',download_path)
     if len(os.listdir(target_dir)) == 0: #checking if target path is empty
-        hf_hub_download(repo_id=repo_id, filename=filename,repo_type=repo_type,local_dir=download_path)
+        hf_hub_download(repo_id=repo_id, filename=filename,repo_type=repo_type,local_dir=target_dir)
         print("New files located in ")
         for (root, dirs, file) in os.walk(download_path,topdown=True):
             print(root)
@@ -62,11 +62,10 @@ def rec_split_documents(documents):
     return split_documents
 
 def create_hf_vectorstore(split_documents):
-    hf_embedding=HuggingFaceEmbeddings(model='all-MiniLM-L12-v2')
+    hf_embedding=HuggingFaceEmbeddings(model_name='all-MiniLM-L12-v2')
     db_dir = os.path.join(os.getcwd(),'data_store','db')
-    Chroma.from_documents(split_documents, hf_embedding, persist_directory=db_dir)
-    print("Chromo Vectorstore created!")
-    return
+    Chroma.from_documents(documents=split_documents, embedding=hf_embedding, persist_directory=db_dir)
+    return 
 
 def create_openai_vectorstore(split_documents):
     """ TO DO - Update interactive open_ai_key """
@@ -81,3 +80,4 @@ if __name__ == "__main__":
     download_quotes()
     split_documents = load_and_split_quotes()
     create_hf_vectorstore(split_documents)
+    print("Chroma Vectorstore created!")

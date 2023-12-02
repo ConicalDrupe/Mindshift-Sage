@@ -4,7 +4,7 @@ from langchain.embeddings import HuggingFaceEmbeddings
 
 def load_vectorstore():
     """ Make sure to run build.py first, to instantiate and create embeddings """
-    hf_embedding=HuggingFaceEmbeddings(model='all-MiniLM-L12-v2')
+    hf_embedding=HuggingFaceEmbeddings(model_name='all-MiniLM-L12-v2')
     db_dir = os.path.join(os.getcwd(),'data_store','db')
     db = Chroma(persist_directory=db_dir, embedding_function = hf_embedding)
     return db

@@ -33,7 +33,7 @@ def new_query_quotes(query,k=3):
 #                                     chunk_size=700, 
 #                                     chunk_overlap=0,
 #                                     length_function=len)
-#     documents = splitter.split_documents(docs)
+#    documents = splitter.split_documents(docs)
 #     
 #     chromadb = Chroma.from_documents(documents, embeddings) 
 #     
