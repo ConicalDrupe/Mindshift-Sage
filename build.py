@@ -23,6 +23,8 @@ def create_data_paths():
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
+    print("Data paths created!")
+    return
 
 def download_quotes(download_path='quotes',repo_id='datastax/philosopher-quotes',filename='philosopher-quotes.csv',repo_type='dataset', check=False):
     """Input download path,HF repoid,filename,type""" 
@@ -38,6 +40,7 @@ def download_quotes(download_path='quotes',repo_id='datastax/philosopher-quotes'
         print("download complete")
     else:
         print("Nothing Downloaded, file already exists")
+    return
 
 # load documents -> split documents -> create embedding into persistent directory
 def load_and_split_quotes():
@@ -71,6 +74,7 @@ def create_openai_vectorstore(split_documents):
     os.environ["OPENAI_API_KEY"] = open_ai_key
     embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
     db = Chroma.from_documents(split_documents, embedding_function=embeddings, persist_directory=db_dir)
+    return
 
 if __name__ == "__main__":
     create_data_paths()
