@@ -7,6 +7,7 @@ from langchain.embeddings import OpenAIEmbeddings
 from open_ai_key import open_ai_key
 from langchain.document_loaders import CSVLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from transformers import AutoTokenizer, AutoModel
 
 # Setup file paths
 # Download Files
@@ -20,6 +21,7 @@ def create_data_paths():
             os.mkdir(dp)
             os.mkdir(os.path.join(dp,'db'))
             os.mkdir(os.path.join(dp,'quotes'))
+            os.mkdir(os.path.join(dp,'llm_cache'))
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
@@ -75,9 +77,22 @@ def create_openai_vectorstore(split_documents):
     db = Chroma.from_documents(split_documents, embedding_function=embeddings, persist_directory=db_dir)
     return
 
+def download_hf_model(repo_id="tiiuae/falcon-7b-instruct"):
+    model_dir = os.path.join(os.getcwd(),'data_store','llm_cache')
+
+    tokenizer = AutoTokenizer.from_pretrained(repo_id)
+    model = AutoModel.from_pretrained(repo_id)
+
+    tokenizer.save_pretrained(model_dir)
+    model.save_pretrained(model_dir)
+    print("Download complete")
+    return
+
 if __name__ == "__main__":
-    create_data_paths()
-    download_quotes()
-    split_documents = load_and_split_quotes()
-    create_hf_vectorstore(split_documents)
-    print("Chroma Vectorstore created!")
+    # create_data_paths()
+    # download_quotes()
+    # split_documents = load_and_split_quotes()
+    # create_hf_vectorstore(split_documents)
+    # print("Chroma Vectorstore created!")
+    download_hf_model(repo_id="tiiuae/falcon-7b-instruct")
+

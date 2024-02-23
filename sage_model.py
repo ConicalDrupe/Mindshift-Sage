@@ -6,11 +6,20 @@ from langchain.llms import HuggingFaceHub
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from db_embedding import new_query_quotes
+from transformers import AutoTokenizer, AutoModel, pipeline
+from langchain.llms.huggingface_pipeline import HuggingFacePipeline
 
 # Insert output parser for response 
 
 def retrieve_hf_insight(user_input):
     os.environ["HUGGINGFACEHUB_API_TOKEN"] = hf_api_key
+    # model_dir = os.path.join(os.getcwd(),'data_store','llm_cache')
+    cache_dir = '~/.cache/huggingface/hub/'
+    tokenizer = AutoTokenizer.from_pretrained("tiiuae/falcon-7b-instruct",cache_dir=cache_dir)
+    model = AutoModel.from_pretrained("tiiuae/falcon-7b-instruct",cache_dir=cache_dir)
+
+    pipe = pipeline("text-generation", model=model, tokenizer=tokenizer)
+    hf = HuggingFacePipeline(pipeline=pipe)
 
     template = """
     You are a wise robot, well studied in philosophy. You are giving advice to a human,
@@ -23,20 +32,15 @@ def retrieve_hf_insight(user_input):
     
     Seperate your output by newlines.
     """
-    prompt_template = PromptTemplate(template=template,input_variables=["user_input","list_of_quotes"])
+    # prompt_template = PromptTemplate(template=template,input_variables=["user_input","list_of_quotes"])
+    prompt_template = PromptTemplate.from_template(template=template)
 
-    repo_id = "tiiuae/falcon-7b-instruct"
-    model_kwargs = {'temperature':0.1}
-
-    llm = HuggingFaceHub(repo_id=repo_id,model_kwargs=model_kwargs)
-    
-    
-    llm_chain = LLMChain(prompt=prompt_template,llm=llm)
     quotes_list = new_query_quotes(user_input, k=1)
-    print("Quotes : ", quotes_list)
-    response = llm_chain.run({"user_input":user_input,"list_of_quotes":quotes_list})
+
+    llm_chain = prompt_template | hf
+
+    response = llm_chain.invoke({"user_input":user_input,"list_of_quotes":quotes_list})
     print("LLM Chain ran")
-    print(response)
 
     return response
 
